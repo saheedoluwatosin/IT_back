@@ -76,7 +76,9 @@ const addarticle = async (request,response)=>{
 
 const getall = async (request,response)=>{
     const article = await Article.find()
-    return response.status(200).json({message:"all articles"})
+    return response.status(200).json({message:"all articles",
+        article
+    })
 }
 
 
