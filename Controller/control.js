@@ -81,11 +81,28 @@ const getall = async (request,response)=>{
     })
 }
 
+const getArticle = async (request, response) => {
+    
+    try {
+        const { id } = request.params; // Get the article ID from the request params
+    const article = await Article.findById(id); // Find the article by ID
+
+    if (!article) {
+        return response.status(404).json({ message: "Article not found" });
+    }
+
+    return response.status(200).json(article); // Return the article details
+    } catch (error) {
+        return response.status(500).json({message: error.message})
+    }
+};
+
 
 
 module.exports = {
     register,
     addarticle,
     getall,
-    login
+    login,
+    getArticle
 }
