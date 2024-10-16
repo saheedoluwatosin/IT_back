@@ -2,8 +2,21 @@ const Article = require("../Model/article")
 const { User } = require("../Model/user")
 const bcrypt = require("bcrypt")
 const jwt = require("jsonwebtoken")
+const multer = require("multer")
 
 
+
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, 'uploads/')
+    },
+    filename: function (req, file, cb) {
+        cb(null, Date.now() + path.extname(file.originalname))
+    }
+});
+
+
+const upload = multer({ storage: storage });
 
 
 
@@ -63,16 +76,35 @@ const login =async (request,response)=>{
     }
 }
 
+const addarticle = [
+    upload.array('images'),
+    async (req, res) => {
+        try {
+            const { title, steps } = req.body;
+            const parsedSteps = JSON.parse(steps);
 
-const addarticle = async (request,response)=>{
-    const {title,content} = request.body
-    const article = new Article({title,content})
-    await article.save()
+            const articleSteps = parsedSteps.map((step, index) => ({
+                text: step.text,
+                image: req.files[index] ? req.files[index].path : null
+            }));
 
-    return response.status(200).json({
-        message:"Article Created"
-    })
-}
+            const article = new Article({
+                title,
+                steps: articleSteps
+            });
+
+            await article.save();
+
+            return res.status(201).json({
+                message: "Article Created",
+                articleId: article._id
+            });
+        } catch (error) {
+            console.error(error);
+            return res.status(500).json({ message: "Error creating article" });
+        }
+    }
+];
 
 const getall = async (request,response)=>{
     const article = await Article.find()
