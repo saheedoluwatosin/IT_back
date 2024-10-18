@@ -77,15 +77,15 @@ const login =async (request,response)=>{
 }
 
 const addarticle = [
-    upload.array('images'),
+    upload.array('images', 20),  // Allow up to 10 images to be uploaded
     async (req, res) => {
         try {
             const { title, steps } = req.body;
-            const parsedSteps = JSON.parse(steps);
+            const parsedSteps = JSON.parse(steps);  // Ensure steps are parsed correctly
 
             const articleSteps = parsedSteps.map((step, index) => ({
                 text: step.text,
-                image: req.files[index] ? req.files[index].path : null
+                image: req.files[index] ? `/uploads/${req.files[index].filename}` : null  // Store relative path
             }));
 
             const article = new Article({
@@ -105,6 +105,7 @@ const addarticle = [
         }
     }
 ];
+
 
 const getall = async (request,response)=>{
     const article = await Article.find()
